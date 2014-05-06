@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+	<title>HTML5 GPS with Google map</title>
+<style> 
+#map-canvas {
+        width:100%; height:480px; border:1px solid #CCC;
+}        
+</style>
+<!--[if lt IE 9]>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<![endif]-->
+<!--[if gte IE 9]><!-->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+<![endif]-->
+<script>
+Date.ext={};Date.ext.util={};Date.ext.util.xPad=function(e,t,n){if(typeof n=="undefined"){n=10}for(;parseInt(e,10)<n&&n>1;n/=10)e=t.toString()+e;return e.toString()};Date.prototype.locale="en-GB";if(document.getElementsByTagName("html")&&document.getElementsByTagName("html")[0].lang){Date.prototype.locale=document.getElementsByTagName("html")[0].lang}Date.ext.locales={};Date.ext.locales.en={a:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],A:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],b:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],B:["January","February","March","April","May","June","July","August","September","October","November","December"],c:"%a %d %b %Y %T %Z",p:["AM","PM"],P:["am","pm"],x:"%d/%m/%y",X:"%T"};Date.ext.locales["en-US"]=Date.ext.locales.en;Date.ext.locales["en-US"].c="%a %d %b %Y %r %Z";Date.ext.locales["en-US"].x="%D";Date.ext.locales["en-US"].X="%r";Date.ext.locales["en-GB"]=Date.ext.locales.en;Date.ext.locales["en-AU"]=Date.ext.locales["en-GB"];Date.ext.formats={a:function(e){return Date.ext.locales[e.locale].a[e.getDay()]},A:function(e){return Date.ext.locales[e.locale].A[e.getDay()]},b:function(e){return Date.ext.locales[e.locale].b[e.getMonth()]},B:function(e){return Date.ext.locales[e.locale].B[e.getMonth()]},c:"toLocaleString",C:function(e){return Date.ext.util.xPad(parseInt(e.getFullYear()/100,10),0)},d:["getDate","0"],e:["getDate"," "],g:function(e){return Date.ext.util.xPad(parseInt(Date.ext.util.G(e)/100,10),0)},G:function(e){var t=e.getFullYear();var n=parseInt(Date.ext.formats.V(e),10);var r=parseInt(Date.ext.formats.W(e),10);if(r>n){t++}else if(r===0&&n>=52){t--}return t},H:["getHours","0"],I:function(e){var t=e.getHours()%12;return Date.ext.util.xPad(t===0?12:t,0)},j:function(e){var t=e-new Date(""+e.getFullYear()+"/1/1 GMT");t+=e.getTimezoneOffset()*6e4;var n=parseInt(t/6e4/60/24,10)+1;return Date.ext.util.xPad(n,0,100)},m:function(e){return Date.ext.util.xPad(e.getMonth()+1,0)},M:["getMinutes","0"],p:function(e){return Date.ext.locales[e.locale].p[e.getHours()>=12?1:0]},P:function(e){return Date.ext.locales[e.locale].P[e.getHours()>=12?1:0]},S:["getSeconds","0"],u:function(e){var t=e.getDay();return t===0?7:t},U:function(e){var t=parseInt(Date.ext.formats.j(e),10);var n=6-e.getDay();var r=parseInt((t+n)/7,10);return Date.ext.util.xPad(r,0)},V:function(e){var t=parseInt(Date.ext.formats.W(e),10);var n=(new Date(""+e.getFullYear()+"/1/1")).getDay();var r=t+(n>4||n<=1?0:1);if(r==53&&(new Date(""+e.getFullYear()+"/12/31")).getDay()<4){r=1}else if(r===0){r=Date.ext.formats.V(new Date(""+(e.getFullYear()-1)+"/12/31"))}return Date.ext.util.xPad(r,0)},w:"getDay",W:function(e){var t=parseInt(Date.ext.formats.j(e),10);var n=7-Date.ext.formats.u(e);var r=parseInt((t+n)/7,10);return Date.ext.util.xPad(r,0,10)},y:function(e){return Date.ext.util.xPad(e.getFullYear()%100,0)},Y:"getFullYear",z:function(e){var t=e.getTimezoneOffset();var n=Date.ext.util.xPad(parseInt(Math.abs(t/60),10),0);var r=Date.ext.util.xPad(t%60,0);return(t>0?"-":"+")+n+r},Z:function(e){return e.toString().replace(/^.*\(([^)]+)\)$/,"$1")},"%":function(e){return"%"}};Date.ext.aggregates={c:"locale",D:"%m/%d/%y",h:"%b",n:"\n",r:"%I:%M:%S %p",R:"%H:%M",t:"	",T:"%H:%M:%S",x:"locale",X:"locale"};Date.ext.aggregates.z=Date.ext.formats.z(new Date);Date.ext.aggregates.Z=Date.ext.formats.Z(new Date);Date.ext.unsupported={};Date.prototype.strftime=function(e){if(!(this.locale in Date.ext.locales)){if(this.locale.replace(/-[a-zA-Z]+$/,"")in Date.ext.locales){this.locale=this.locale.replace(/-[a-zA-Z]+$/,"")}else{this.locale="en-GB"}}var t=this;while(e.match(/%[cDhnrRtTxXzZ]/)){e=e.replace(/%([cDhnrRtTxXzZ])/g,function(e,n){var r=Date.ext.aggregates[n];return r=="locale"?Date.ext.locales[t.locale][n]:r})}var n=e.replace(/%([aAbBCdegGHIjmMpPSuUVwWyY%])/g,function(e,n){var r=Date.ext.formats[n];if(typeof r=="string"){return t[r]()}else if(typeof r=="function"){return r.call(t,t)}else if(typeof r=="object"&&typeof r[0]=="string"){return Date.ext.util.xPad(t[r[0]](),r[1])}else{return n}});t=null;return n}
+//strftime
+$(function(){
+var new_date = new Date();
+var time_stamp = new_date.strftime('%Y-%m-%d %H:%M:%S');
+//alert(isnow);
+$('.past').attr('title',time_stamp);
+eval(function(p,a,c,k,e,r){e=function(c){return(c<a?'':e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--)r[e(c)]=k[c]||e(c);k=[function(e){return r[e]}];e=function(){return'\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p}('(q($){v j={"Q":["1 月","2 月","3 月","4 月","5 月","6 月","7 月","8 月","9 月","10 月","11 月","12 月"],"16":["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"],"R":["日","一","二","三","四","五","六"],"V":["星期日","星期一","星期二","星期三","星期四","星期五","星期六"],};x.1s.1f=q(a){v b=\'\',1e=x.E,19=\'\';1e.1q();25(v i=0;i<a.24;i++){19=a.1J(i);b+=(1e[19]?1e[19].1w(p):19)}u b};x.E={1q:q(){x.E.Q=j.14(\'Q\')?j.Q:[\'1U\',\'1Q\',\'1P\',\'2I\',\'1u\',\'2D\',\'2E\',\'22\',\'2H\',\'1R\',\'1S\',\'1V\'];x.E.16=j.14(\'16\')?j.16:[\'1W\',\'1X\',\'1Y\',\'1Z\',\'1u\',\'20\',\'21\',\'23\',\'26\',\'27\',\'28\',\'2a\'];x.E.R=j.14(\'R\')?j.R:[\'2c\',\'2d\',\'2f\',\'2g\',\'2h\',\'2i\',\'2j\'];x.E.V=j.14(\'V\')?j.V:[\'2k\',\'2s\',\'2t\',\'2x\',\'2z\',\'2A\',\'2C\']},Q:[],16:[],R:[],V:[],d:q(){u(p.J()<10?\'0\':\'\')+p.J()},D:q(){u x.E.R[p.1l()]},j:q(){u p.J()},l:q(){u x.E.V[p.1l()]},N:q(){u p.1K()+1},S:q(){u(p.J()%10===1&&p.J()!==11?\'1L\':(p.J()%10===2&&p.J()!==12?\'1M\':(p.J()%10==3&&p.J()!=13?\'1N\':\'1O\')))},w:q(){u p.1l()},z:q(){u\'\'},W:q(){u\'\'},F:q(){u x.E.16[p.17()]},m:q(){u(p.17()<9?\'0\':\'\')+(p.17()+1)},M:q(){u x.E.Q[p.17()]},n:q(){u p.17()+1},t:q(){u\'\'},L:q(){u\'\'},o:q(){u\'\'},Y:q(){u p.1v()},y:q(){u(\'\'+p.1v()).1T(2)},a:q(){v a=j.14(\'15\')?j.15:15;u p.K()<12?a.1z:a.1B},A:q(){v a=j.14(\'15\')?j.15:15;u p.K()<12?a.1z:a.1B},B:q(){u\'\'},g:q(){u p.K()%12||12},G:q(){u p.K()},h:q(){u((p.K()%12||12)<10?\'0\':\'\')+(p.K()%12||12)},H:q(){u(p.K()<10?\'0\':\'\')+p.K()},i:q(){u(p.1H()<10?\'0\':\'\')+p.1H()},s:q(){u(p.1I()<10?\'0\':\'\')+p.1I()},e:q(){u\'\'},I:q(){u\'\'},O:q(){u(-p.1h()<0?\'-\':\'+\')+(X.1r(p.1h()/1a)<10?\'0\':\'\')+(X.1r(p.1h()/1a))+\'29\'},T:q(){v m=p.17();p.1t(0);v a=p.2b().1e(/^.+ \\(?([^\\)]+)\\)?$/,\'$1\');p.1t(m);u a},Z:q(){u-p.1h()*1a},c:q(){u\'\'},r:q(){u p.1b()},U:q(){u p.2e()/1k}};v k=[];v l={1x:q(h){u p.1y(q(){v f={1f:\'Y-m-d H:i:s\',1i:\'2l.2m\',18:\'2n\',1d:[\' 2o 1g\',\' 2p 1g\',\' 2q 1g\',\' 2r 1g\'],1A:10,1m:2u};v g=$(p),C=$.2v(f,h);g.2w(C.1i,\'1C\',q(){v e=$(p);v s=2y((q(){v a=1n x(e.18(C.18));v b=1n x();v c=X.1o((b-a)/1k);v d=\'\';P(c<1a){d=c.2B()+C.1d[0].1b()}1c P(c>1E&&c<1F){d=X.1o(c/1E)+C.1d[3].1b()}1c P(c>1F){d=1n x(e.18(C.18)).1f(C.1f)}1c P(c>=1G){d=X.2F(c/1G)+C.1d[2].1b()}1c{d=X.1o(c/1a)+C.1d[1].1b()}e.2G(d);P(\'q\'===1p C.1m){C.1m()}u 1j.2J}()),C.1A*1k);k.2K(s)}).2L(C.1i).2M(\'1C\')})},2N:q(){u p.1y(q(){2O(k[$(p).2P()])})}};$.2Q.2R=q(a){v b=p,2S={};P(\'2T\'===1p a){u l[a].1D(p,2U.1s.2V.1w(1j,1))}1c P(\'2W\'===1p a||!a){u l.1x.1D(p,1j)}}}(2X));',62,184,'|||||||||||||||||||||||||this|function||||return|var||Date|||||opts||replaceChars|||||getUTCDate|getUTCHours|||||if|shortMonths|shortDays||||longDays||Math|||||||hasOwnProperty|setting|longMonths|getUTCMonth|attr|curChar|60|toString|else|label|replace|format|ago|getTimezoneOffset|target|arguments|1000|getUTCDay|ontimeup|new|floor|typeof|reload|abs|prototype|setMonth|May|getUTCFullYear|call|init|each|AM|interval|PM|click|apply|86400|259200|3600|getUTCMinutes|getUTCSeconds|charAt|getDay|st|nd|rd|th|Mar|Feb|Oct|Nov|substr|Jan|Dec|January|February|March|April|June|July|Aug|August|length|for|September|October|November|00|December|toTimeString|Sun|Mon|getUTCTime|Tue|Wed|Thu|Fri|Sat|Sunday|span|past|title|seconds|minutes|hours|days|Monday|Tuesday|null|extend|delegate|Wednesday|setInterval|Thursday|Friday|toFixed|Saturday|Jun|Jul|round|text|Sep|Apr|callee|push|find|trigger|destroy|clearInterval|index|fn|pasttimes|container|string|Array|slice|object|jQuery'.split('|'),0,{}))
+//jquery.pasttimes
+$('.pasts').pasttimes({
+        target: 'span.past',
+        label: [' 秒前', ' 分鐘前', ' 小時前', ' 天前']
+    });    
+});
+function funA(){
+if (watchId !== null) {navigator.geolocation.clearWatch(watchId);alert("範例限時使用5分鐘，請重新整理刷新瀏覽器頁面，謝謝");}
+}
+setTimeout('funA()', 1000*60*5);//Demo 5分鐘
+</script>
+<!--
+    Include the maps javascript with sensor=true if this code is using a
+    sensor (a GPS locator) to determine the user's location.
+    See: https://developers.google.com/maps/documentation/javascript/tutorial#Loading_the_Maps_API
+-->
+<script src="https://maps.googleapis.com/maps/api/js?sensor=true"></script>
+<script>
+// Note: This example requires that you consent to location sharing when
+// prompted by your browser. If you see a blank space instead of the map, this
+// is probably because you have denied permission for location sharing.
+
+var map;
+var infowindow;
+function initialize() {
+  var mapOptions = {
+    zoom: 15
+  };
+  map = new google.maps.Map(document.getElementById('map-canvas'),
+      mapOptions);
+  geocoder = new google.maps.Geocoder();
+  // Try HTML5 geolocation
+  if(navigator.geolocation) {
+    //navigator.geolocation.getCurrentPosition(function(position) {
+    watchId = navigator.geolocation.watchPosition(function(position) {    
+      var pos = new google.maps.LatLng(position.coords.latitude,
+                                       position.coords.longitude);                               
+    geocoder.geocode({'latLng': pos}, function(results, status) {
+      if (status == google.maps.GeocoderStatus.OK) {
+        if (results[0]) {
+        var marker = new google.maps.Marker({
+        position: pos, 
+        map: map, 
+        title:'您正使用HTML5地理定位語法! (您位於方圓 '+position.coords.accuracy+' 公尺內)'
+        });
+      	
+      	
+        google.maps.event.addListener(marker, 'click', function() {
+        if(infowindow) {infowindow.close();}
+        infowindow = new google.maps.InfoWindow();    //初始一個物件
+        infowindow.setContent('<div style="width:275px; height:100px;" class="info-window">您的地理位置使用HTML5語法找到了.<br>您位於'+results[0].formatted_address+'(經緯度:'+position.coords.latitude+','+position.coords.longitude+')方圓 '+position.coords.accuracy+' 公尺內</div>');    //InfoWindow的內容，可用Html語法
+        infowindow.setPosition(pos);    //座標	
+        infowindow.open(map, marker);
+        });
+        
+        if(infowindow) {infowindow.close();}
+        infowindow = new google.maps.InfoWindow();    //初始一個物件
+        infowindow.setContent('<div style="width:275px; height:100px;" class="info-window">您的地理位置使用HTML5語法找到了.<br>您位於'+results[0].formatted_address+'(經緯度:'+position.coords.latitude+','+position.coords.longitude+')方圓 '+position.coords.accuracy+' 公尺內</div>');    //InfoWindow的內容，可用Html語法
+        infowindow.setPosition(pos);    //座標
+        infowindow.open(map, marker);
+        map.setCenter(pos);
+            
+        } else {
+        alert('Geocoder failed due to: ' + status);
+        }
+      }
+    });
+    
+    
+    }, function(error) {
+      handleNoGeolocation(error);
+    }, {
+         enableHighAccuracy: true
+              ,timeout: 15 * 1000, // 15 seconds
+               maximumAge: 36 * 1000 // 36 seconds
+    });
+  } else {
+    // 瀏覽器不支援HTML5地理定位
+    handleNoGeolocation(false);
+  }
+}
+
+function handleNoGeolocation(errorFlag) {
+  if (errorFlag) {
+    switch (errorFlag.code) {
+            case errorFlag.TIMEOUT:
+                alert('連線逾時');
+                break;
+ 
+            case errorFlag.POSITION_UNAVAILABLE:
+                alert('無法取得定位');
+                break;
+ 
+            case errorFlag.PERMISSION_DENIED://拒絕
+                alert('未允許定位功能');
+                break;
+ 
+            case errorFlag.UNKNOWN_ERROR:
+                alert('不明的錯誤，請稍候再試');
+                break;
+        }
+    var content = 'Error: 地理定位失敗.';
+  } else {
+    var content = 'Error: 您的瀏覽器不支援HTML5地理定位.';
+  }
+
+  var options = {
+    map: map,
+    position: new google.maps.LatLng(0, 0),
+    content: content
+  };
+
+  var infowindow = new google.maps.InfoWindow(options);
+  map.setCenter(options.position);
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+</script>    
+</head>
+<body>
+<!--[if lt IE 8]>
+            <p class="chromeframe">您正使用過氣的瀏覽器請至. <a href="http://browsehappy.com/">馬上升級您的瀏覽器</a> 或 <a href="http://www.google.com/chromeframe/?redirect=true">安裝 Google Chrome Frame</a> 以增進您瀏覽本頁面的體驗.</p>
+<![endif]-->
+<article>
+  <p>上網狀態: <span id="status">checking...</span></p>
+  <div class="pasts">定位時間: <span class="past"></span></div>
+  <p>會自動顯示當前位置，亦可用點擊途經各定位點以顯示該點位置</p>
+</article>
+<script>
+var statusElem = document.getElementById('status')
+setInterval(function () {
+  statusElem.innerHTML = navigator.onLine ? '上線中' : '已離線';  
+}, 250);
+</script>
+<figure><div id="map-canvas"></div></figure>    
+</body>
+</html>
