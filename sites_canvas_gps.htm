@@ -24,11 +24,18 @@ function funA() {
 }
 
 </script>
-<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=true"></script>
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=true&amp;libraries=places"></script>
+<script src="https://github.com/ubilabs/geocomplete/raw/master/jquery.geocomplete.min.js"></script>
 <script type="text/javascript">
 //<![CDATA[   	    
 //google.maps.event.addDomListener(window, 'load', initialize);
 $(document).ready(function() {
+		$(".place").geocomplete({
+          //map: ".map_canvas",
+          details: "form",
+          types: ["geocode", "establishment"],
+        });
+        
     $("#send").click(function() {
 				$("#send").hide();
 				$("#refresh").show();
