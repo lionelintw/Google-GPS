@@ -34,7 +34,7 @@ function isOnline(no,yes){
             no();
         }
     }
-    xhr.open("GET","https://www.googledrive.com/host/0ByMBO38X0JDdZUlnSE8zenRRcjQ/online.htm",true);
+    xhr.open("GET","https://35d8ffc5aee7af066b7e45dae29118bbfd1a4bac-www.googledrive.com/host/0ByMBO38X0JDdZUlnSE8zenRRcjQ/online.htm",true);
     xhr.send();
 }
 
@@ -46,43 +46,9 @@ function funA() {
 }
 
 </script>
-<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=true&amp;libraries=places"></script>
-<script src="https://github.com/ubilabs/geocomplete/raw/master/jquery.geocomplete.min.js"></script>
-<script type="text/javascript">
-//<![CDATA[   	    
-//google.maps.event.addDomListener(window, 'load', initialize);
-$(document).ready(function() {
-		$(".place").geocomplete({
-          //map: ".map_canvas",
-          details: "form",
-          types: ["geocode", "establishment"],
-        });
-        
-    $("#send").click(function() {
-				$("#send").hide();
-				$("#refresh").show();
-        var i = 1;
-        for (i; i < 300; i++) {
-            (function(num) {
-                setTimeout(function() {
-                    $('.past').text(num + '秒');
-                }, num * 1000);
-            })(i);
-        }
-        setTimeout('funA()', 1000 * 60 * 5); //Demo 5分鐘
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=true&libraries=places"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/geocomplete/1.6.5/jquery.geocomplete.min.js"></script>
 
-        var items = $(".place").map(function() {
-            var arr = [];
-            arr.push($(this).val());
-            return arr;
-        }).get();
-        initialize(items);
-        $(".place").attr('disabled', 'disabled');
-    });
-});
-
-//]]>
-</script>
 </head>
 
 <body>
@@ -109,15 +75,13 @@ setInterval(run1, 3000);
 	
 //var message = ['台北車站', '臺北101']; //這裡也可替換成地址
 //var markerContent = ['台北車站<br>Taipei Station', '臺北101<br>Taipei 101'];
-var map;
-var markers = [];
-var infowindow;
-var geocoder;
+
 routes = [];
 points = [];
-var prev = null;
 var bounds = new google.maps.LatLngBounds();
-
+var geocoder;
+var map;
+var prev = null;
 var img = new Image();
 
 function initialize(items) {
@@ -283,7 +247,8 @@ function attachSecretMessage(marker, marker_Content) {
 }
 
 function thenext() {
-
+		var infowindow;
+		var markers = [];
     var mapOptions = {
         //center: myLatlng,
         //zoom: 15,
@@ -393,5 +358,41 @@ function handleNoGeolocation(errorFlag) {
     map.setCenter(options.position);
 
 }
+</script>
+<script type="text/javascript">
+//<![CDATA[   	    
+function init(){
+//$(document).ready(function() {
+		$(".place").geocomplete({
+          //map: ".map_canvas",
+          details: "form",
+          types: ["geocode", "establishment"],
+        });
+        
+    $("#send").on('click', function() {
+				$("#send").hide();
+				$("#refresh").show();
+        var i = 1;
+        for (i; i < 300; i++) {
+            (function(num) {
+                setTimeout(function() {
+                    $('.past').text(num + '秒');
+                }, num * 1000);
+            })(i);
+        }
+        setTimeout('funA()', 1000 * 60 * 5); //Demo 5分鐘
+
+        var items = $(".place").map(function() {
+            var arr = [];
+            arr.push($(this).val());
+            return arr;
+        }).get();
+        initialize(items);
+        $(".place").attr('disabled', 'disabled');
+    });
+//});
+}
+google.maps.event.addDomListener(window, 'load', init);
+//]]>
 </script>	
 </html>
