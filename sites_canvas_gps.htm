@@ -15,6 +15,28 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
 <![endif]-->
 <script>
+function isOnline(no,yes){
+    var xhr = XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHttp');
+    xhr.onload = function(){
+        if(yes instanceof Function){
+        if(xhr.status && xhr.status != "404" && xhr.responseText == "true")	
+        {
+        	yes();
+        }
+      	else
+      	{
+      		no();
+      	}            
+        }
+    }
+    xhr.onerror = function(){
+        if(no instanceof Function){
+            no();
+        }
+    }
+    xhr.open("GET","https://www.googledrive.com/host/0ByMBO38X0JDdZUlnSE8zenRRcjQ/online.htm",true);
+    xhr.send();
+}
 
 function funA() {
     if (watchId !== null) {
@@ -64,6 +86,7 @@ $(document).ready(function() {
 </head>
 
 <body>
+	<p>上網狀態: <span id="status">checking...</span></p>
 	<div class="pasts">計時: <span class="past"></span></div>
 	<p>起點:<input class="place"/> 終點:<input class="place"/> <input id="send" type="button" value="送出"><input style="display:none" id="refresh" type="button" value="重新輸入" onclick="location.reload();"></p>
 <center>
@@ -71,6 +94,19 @@ $(document).ready(function() {
 </center>
 </body>
 <script>
+var statusElem = document.getElementById('status')
+function run1(){
+isOnline(
+    function(){
+        statusElem.innerHTML = "已離線";
+    },
+    function(){
+        statusElem.innerHTML = "上線中";
+    }
+);
+}
+setInterval(run1, 3000);	
+	
 //var message = ['台北車站', '臺北101']; //這裡也可替換成地址
 //var markerContent = ['台北車站<br>Taipei Station', '臺北101<br>Taipei 101'];
 var map;
