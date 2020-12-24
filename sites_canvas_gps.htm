@@ -19,7 +19,7 @@ function isOnline(no,yes){
     var xhr = XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHttp');
     xhr.onload = function(){
         if(yes instanceof Function){
-        if(xhr.status && xhr.status != "404" && xhr.responseText == "true")	
+        if(xhr.status && xhr.status != "404" && xhr.responseText !== "")	
         {
         	yes();
         }
@@ -34,7 +34,7 @@ function isOnline(no,yes){
             no();
         }
     }
-    xhr.open("GET","https://rawgit.com/lionelintw/Google-GPS/master/online.htm",true);
+    xhr.open("GET","https://lionelintw.github.io/Google-GPS/online.htm",true);
     xhr.send();
 }
 
@@ -46,7 +46,7 @@ function funA() {
 }
 
 </script>
-<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=true&libraries=places"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=true&libraries=places&key=yourkey"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/geocomplete/1.6.5/jquery.geocomplete.min.js"></script>
 
 </head>
