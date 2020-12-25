@@ -45,6 +45,8 @@ function funA() {
     }
 }
 
+
+
 </script>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=true&libraries=places&key=yourkey"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/geocomplete/1.6.5/jquery.geocomplete.min.js"></script>
@@ -54,25 +56,24 @@ function funA() {
 <body>
 	<p>上網狀態: <span id="status">checking...</span></p>
 	<div class="pasts">計時: <span class="past"></span></div>
-	<p>起點:<input class="place"/> 終點:<input class="place"/> <input id="send" type="button" value="送出"><input style="display:none" id="refresh" type="button" value="重新輸入" onclick="history.go(0);"></p>
+	<p>起點:<input class="place" id="placeo"/> 終點:<input class="place"/> <input id="send" type="button" value="送出"><input style="display:none" id="refresh" type="button" value="重新輸入" onclick="history.go(0);"></p>
 <center>
 <div id="map" style="width:100%; height:480px; border:1px solid red;"></div>
 </center>
 </body>
 <script>
 var statusElem = document.getElementById('status')
-function run1(){
-isOnline(
-    function(){
-        statusElem.innerHTML = "已離線";
-    },
-    function(){
-        statusElem.innerHTML = "上線中";
-    }
-);
+function run1() {
+	isOnline(
+		function () {
+		statusElem.innerHTML = "已離線";
+	},
+		function () {
+		statusElem.innerHTML = "上線中";
+	});
 }
-setInterval(run1, 3000);	
-	
+setInterval(run1, 3000);
+
 //var message = ['台北車站', '臺北101']; //這裡也可替換成地址
 //var markerContent = ['台北車站<br>Taipei Station', '臺北101<br>Taipei 101'];
 
@@ -86,313 +87,382 @@ var img = new Image();
 
 function initialize(items) {
 
-    var message = items;
-    var markerContent = items;
-    geocoder = new google.maps.Geocoder();
-    var mapOptions = {
-        //center: myLatlng,
-        //zoom: 18,
-        scaleControl: true,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    map = new google.maps.Map(document.getElementById('map'), mapOptions);
+	var message = items;
+	var markerContent = items;
+	geocoder = new google.maps.Geocoder();
+	var mapOptions = {
+		//center: myLatlng,
+		//zoom: 18,
+		scaleControl: true,
+		mapTypeId: google.maps.MapTypeId.ROADMAP
+	};
+	map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
-    img.onload = function() {
-        var self = this;
+	img.onload = function () {
+		var self = this;
 
-        //依序多個marker繪製
-        $.each(message, function(index, value) {
+		//依序多個marker繪製
+		$.each(message, function (index, value) {
 
-            codeAddress(value, index, self, markerContent[index]);
-        });
+			codeAddress(value, index, self, markerContent[index]);
+		});
 
-    };
-    img.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAjCAYAAACOysqWAAADmElEQVR42r2XW0hUQRzGU9EHRQTxRYgQ8Sm01N1NJF98CMIrGfVQQqIg60MhBRZBRlptaEQYimQpFGq7ptRShNWDWmmma+YllXbNvOFmlmm6le35mplz9Fz2eGVr4Mc385/LNzN7zpnZbdv+dyoqvoqkpCQkJCSsSVJysgy9Pgd19xuw6sC190wICAjA0Zx8lJracaniOQrLG5F3tR4nLtbg5BWjjNzLtSKGWhzLLcau6FgkksmpGnj7+ECfX4mXVg5vxxSMKvKjKnVELZ84pKSfQkpKitxk3/5EHMo+j1Ybh95JdfoUypiQxyldxMjLywtGk0k0idLFwtSxhEE7h8HPHIYEaHnI7ppnZaVK+maeLsOBtDTRIFIbg7pODsNfVfi2yTjhXHkTtDqddAUxuG/hMDYnMj7PMybVOZ4xaXneNVZQ2QqtVisx0OiYgd1BWBQg+SmiUw4eu0NSL8nL6oS2LgaaPfwKZn5L+MXhi6KsmlehoLINGrnBHmYw+8c9MAONRjSI1unkBk4VdarU/1HUO5cNWhEZGSkaaGNiRAPnFmcu9JsmW3Thdqt8Bdt37MCDbvUOGx5caP9xlkNhVRti9+4VDXz9/PBsUGVg59qzVcYmFzi8GuFXEB4eLhpEkP16Ydv4jOmjaCMvWs8Uh5fDHJ70c2yLa9p5XAxCw8LwqIdv3GMXOy7TbBX1ca8w0BsJ7XJcDEhCHZkB/VyYOnmlZZOFVxmdq2AR9VKVioH5HYeHlG5BV8HcrVBpnaBFd1UMGt9zjKdUByQIcVlMWjfg2u96rYpBC9nfFpuAVaIKmm1yXYkL0H43apoQFRUlGnh6euL18G90kJNpTUbXKQucuVyG1NRU0YAuJzv3LPrIE7RZ+qVKDpveKScdGEajUX5s0mPOUFLBnm8l1o3EyBts/erEkUw9u5W4HPrV1dXsVpF88DBKbt1Bk6WfMfp9CRPkDZ34oYDEuj6Mszb1jU3Iyy9kM6dXmjXvRQaDgTUKCQlheHh4kINnCdPkDFjhJ4eMbD2CgoJYG/qDZmVluW7LRhI1K7lZIftU2Bcc8Pb2hltuenTrdkdHywyulZYhPj4ebrtO0tnaFx0rX82dERFb247VUmhoKNre9bLBR6Zn4O/vD7deiNPT01FYVMxWQHXdJ2WzyWw2I4SsghpQpWW3X+t9fX0xND6JwMBA/JP/DXFxcdAfP4GMjIx/Y9DQ0IDg4OBND/4XQ/hZxjrIrWcAAAAASUVORK5CYII=';
-    thenext();
+	};
+	img.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAjCAYAAACOysqWAAADmElEQVR42r2XW0hUQRzGU9EHRQTxRYgQ8Sm01N1NJF98CMIrGfVQQqIg60MhBRZBRlptaEQYimQpFGq7ptRShNWDWmmma+YllXbNvOFmlmm6le35mplz9Fz2eGVr4Mc385/LNzN7zpnZbdv+dyoqvoqkpCQkJCSsSVJysgy9Pgd19xuw6sC190wICAjA0Zx8lJracaniOQrLG5F3tR4nLtbg5BWjjNzLtSKGWhzLLcau6FgkksmpGnj7+ECfX4mXVg5vxxSMKvKjKnVELZ84pKSfQkpKitxk3/5EHMo+j1Ybh95JdfoUypiQxyldxMjLywtGk0k0idLFwtSxhEE7h8HPHIYEaHnI7ppnZaVK+maeLsOBtDTRIFIbg7pODsNfVfi2yTjhXHkTtDqddAUxuG/hMDYnMj7PMybVOZ4xaXneNVZQ2QqtVisx0OiYgd1BWBQg+SmiUw4eu0NSL8nL6oS2LgaaPfwKZn5L+MXhi6KsmlehoLINGrnBHmYw+8c9MAONRjSI1unkBk4VdarU/1HUO5cNWhEZGSkaaGNiRAPnFmcu9JsmW3Thdqt8Bdt37MCDbvUOGx5caP9xlkNhVRti9+4VDXz9/PBsUGVg59qzVcYmFzi8GuFXEB4eLhpEkP16Ydv4jOmjaCMvWs8Uh5fDHJ70c2yLa9p5XAxCw8LwqIdv3GMXOy7TbBX1ca8w0BsJ7XJcDEhCHZkB/VyYOnmlZZOFVxmdq2AR9VKVioH5HYeHlG5BV8HcrVBpnaBFd1UMGt9zjKdUByQIcVlMWjfg2u96rYpBC9nfFpuAVaIKmm1yXYkL0H43apoQFRUlGnh6euL18G90kJNpTUbXKQucuVyG1NRU0YAuJzv3LPrIE7RZ+qVKDpveKScdGEajUX5s0mPOUFLBnm8l1o3EyBts/erEkUw9u5W4HPrV1dXsVpF88DBKbt1Bk6WfMfp9CRPkDZ34oYDEuj6Mszb1jU3Iyy9kM6dXmjXvRQaDgTUKCQlheHh4kINnCdPkDFjhJ4eMbD2CgoJYG/qDZmVluW7LRhI1K7lZIftU2Bcc8Pb2hltuenTrdkdHywyulZYhPj4ebrtO0tnaFx0rX82dERFb247VUmhoKNre9bLBR6Zn4O/vD7deiNPT01FYVMxWQHXdJ2WzyWw2I4SsghpQpWW3X+t9fX0xND6JwMBA/JP/DXFxcdAfP4GMjIx/Y9DQ0IDg4OBND/4XQ/hZxjrIrWcAAAAASUVORK5CYII=';
+	thenext();
 }
 
 function codeAddress(address, i, self, marker_Content) {
 
-    var w = self.width,
-        h = self.height,
-        txt = "";
-    var canvas = document.createElement('canvas'),
-        context = canvas.getContext('2d');
-    canvas.width = w;
-    canvas.height = h;
-    context.drawImage(self, 0, 0, w, h);
-    context.textAlign = 'center';
-    if (i + 1 == 1) {
-        txt = "起點";
-    } else if (i + 1 == 2) {
-        txt = "終點";
-    } else {
-        txt = i + 1;
-    }
-    context.fillText(txt, w / 2, h / 2);
+	var w = self.width,
+	h = self.height,
+	txt = "";
+	var canvas = document.createElement('canvas'),
+	context = canvas.getContext('2d');
+	canvas.width = w;
+	canvas.height = h;
+	context.drawImage(self, 0, 0, w, h);
+	context.textAlign = 'center';
+	if (i + 1 == 1) {
+		txt = "起點";
+	} else if (i + 1 == 2) {
+		txt = "終點";
+	} else {
+		txt = i + 1;
+	}
+	context.fillText(txt, w / 2, h / 2);
+
+	//取得經緯度，並繪制地圖
+	geocoder.geocode({
+		'address': address
+	}, function (results, status) {
+		if (status == google.maps.GeocoderStatus.OK) {
+			map.setCenter(results[0].geometry.location);
+
+			var marker = new google.maps.Marker({
+					icon: canvas.toDataURL(),
+					map: map,
+					position: results[0].geometry.location
+				});
+
+			bounds.extend(results[0].geometry.location); //將此座標納入檢視範圍
+			attachSecretMessage(marker, marker_Content); //增加marker
+			map.fitBounds(bounds); //調整檢視範圍
 
 
-    //取得經緯度，並繪制地圖
-    geocoder.geocode({
-        'address': address
-    }, function(results, status) {
-        if (status == google.maps.GeocoderStatus.OK) {
-            map.setCenter(results[0].geometry.location);
+			//for (var i=0, cnt=data['results'].length; i<cnt ; ++i) {
+			//var point = new google.maps.LatLng(results[0].geometry.location.lat,results[0].geometry.location.lng);
+			var point = results[0].geometry.location;
+			points.push({
+				location: point,
+				stopover: false, // 是否顯示
+			});
 
-            var marker = new google.maps.Marker({
-                icon: canvas.toDataURL(),
-                map: map,
-                position: results[0].geometry.location
-            });
-
-            bounds.extend(results[0].geometry.location); //將此座標納入檢視範圍
-            attachSecretMessage(marker, marker_Content); //增加marker
-            map.fitBounds(bounds); //調整檢視範圍
-
-
-
-
-            //for (var i=0, cnt=data['results'].length; i<cnt ; ++i) {
-            //var point = new google.maps.LatLng(results[0].geometry.location.lat,results[0].geometry.location.lng);
-            var point = results[0].geometry.location;
-            points.push({
-                location: point,
-                stopover: false, // 是否顯示
-            });
-
-            // add marker
-            if (0) {
-                var marker1 = new google.maps.Marker({
-                    map: map,
-                    position: point,
-                });
-            }
-            if (prev) {
-                // use multiple routes
-                routes.push({
-                    origin: prev,
-                    destination: point,
-                    travelMode: google.maps.TravelMode.DRIVING
-                });
-            }
-            prev = point;
-            //}    
+			// add marker
+			if (0) {
+				var marker1 = new google.maps.Marker({
+						map: map,
+						position: point,
+					});
+			}
+			if (prev) {
+				// use multiple routes
+				routes.push({
+					origin: prev,
+					destination: point,
+					travelMode: google.maps.TravelMode.DRIVING
+				});
+			}
+			prev = point;
+			//}
 
 
+		} else {
+			//alert('Geocode was not successful for the following reason: ' + status);
+			alert('Google Map找不到 ' + address + '(' + status + ') ,請在名稱前加入地址或嘗試搜尋其它地標名稱 ');
+		}
 
-        } else {
-            //alert('Geocode was not successful for the following reason: ' + status);
-            alert('Google Map找不到 ' + address + '(' + status + ') ,請在名稱前加入地址或嘗試搜尋其它地標名稱 ');
-        }
+		if (routes.length == 1) {
+			var directionsService = new google.maps.DirectionsService;
+			// multiple routes
+			// https://developers.google.com/maps/documentation/javascript/directions
+			if (0) {
+				for (var i = 0, cnt = routes.length; i < cnt; ++i) {
+					console.log(i);
+					directionsService.route(routes[i], function (result, status) {
+						if (status == google.maps.DirectionsStatus.OK) {
+							var directionsDisplay = new google.maps.DirectionsRenderer({
+									suppressMarkers: true
+								});
+							directionsDisplay.setMap(map);
+							directionsDisplay.setDirections(result);
+						}
+					});
+				}
+			}
 
-        if (routes.length == 1) {
-            var directionsService = new google.maps.DirectionsService;
-            // multiple routes
-            // https://developers.google.com/maps/documentation/javascript/directions
-            if (0) {
-                for (var i = 0, cnt = routes.length; i < cnt; ++i) {
-                    console.log(i);
-                    directionsService.route(routes[i], function(result, status) {
-                        if (status == google.maps.DirectionsStatus.OK) {
-                            var directionsDisplay = new google.maps.DirectionsRenderer({
-                                suppressMarkers: true
-                            });
-                            directionsDisplay.setMap(map);
-                            directionsDisplay.setDirections(result);
-                        }
-                    });
-                }
-            }
+			// use multiple stops
+			// https://developers.google.com/maps/documentation/javascript/directions#Waypoints
+			var max_steps = 36;
+			for (var i = 0, cnt = points.length; i < cnt; i += max_steps) {
+				var stops = []; // max should be 8
+				var next_stop = Math.floor(max_steps / (8 - 2));
+				for (var j = i + next_stop; j < (max_steps - next_stop) && j < (cnt - 1); j += next_stop) // 去頭去尾, 頭擺在 origin
+					stops.push(points[j]);
+				var request = {
+					origin: points[i].location,
+					destination: i + (max_steps - 1) < cnt ? points[i + max_steps - 1].location : points[cnt - 1].location,
+					waypoints: stops,
+					travelMode: google.maps.TravelMode.DRIVING,
+				};
+				directionsService.route(request, function (result, status) {
+					if (status == google.maps.DirectionsStatus.OK) {
+						var directionsDisplay = new google.maps.DirectionsRenderer({
+								suppressMarkers: true // 單純畫路線，不要顯示 marker
+							});
+						directionsDisplay.setMap(map);
+						directionsDisplay.setDirections(result);
+					} else {
+						console.log(status);
+						alert(status); // OVER_QUERY_LIMIT, MAX_WAYPOINTS_EXCEEDED
+					}
+				});
+			}
+		}
 
-
-            // use multiple stops
-            // https://developers.google.com/maps/documentation/javascript/directions#Waypoints
-            var max_steps = 36;
-            for (var i = 0, cnt = points.length; i < cnt; i += max_steps) {
-                var stops = []; // max should be 8
-                var next_stop = Math.floor(max_steps / (8 - 2));
-                for (var j = i + next_stop; j < (max_steps - next_stop) && j < (cnt - 1); j += next_stop) // 去頭去尾, 頭擺在 origin
-                    stops.push(points[j]);
-                var request = {
-                    origin: points[i].location,
-                    destination: i + (max_steps - 1) < cnt ? points[i + max_steps - 1].location : points[cnt - 1].location,
-                    waypoints: stops,
-                    travelMode: google.maps.TravelMode.DRIVING,
-                };
-                directionsService.route(request, function(result, status) {
-                    if (status == google.maps.DirectionsStatus.OK) {
-                        var directionsDisplay = new google.maps.DirectionsRenderer({
-                            suppressMarkers: true // 單純畫路線，不要顯示 marker
-                        });
-                        directionsDisplay.setMap(map);
-                        directionsDisplay.setDirections(result);
-                    } else {
-                        console.log(status);
-                        alert(status); // OVER_QUERY_LIMIT, MAX_WAYPOINTS_EXCEEDED
-                    }
-                });
-            }
-        }
-
-    });
+	});
 }
 
 function attachSecretMessage(marker, marker_Content) {
-    var infowindow = new google.maps.InfoWindow({
-        content: marker_Content
-    });
-    google.maps.event.addListener(marker, 'click', function() {
-        infowindow.open(marker.get('map'), marker);
-    });
+	var infowindow = new google.maps.InfoWindow({
+			content: marker_Content
+		});
+	google.maps.event.addListener(marker, 'click', function () {
+		infowindow.open(marker.get('map'), marker);
+	});
 }
 
 function thenext() {
-		var infowindow;
-		var markers = [];
-    var mapOptions = {
-        //center: myLatlng,
-        //zoom: 15,
-        scaleControl: true,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    map = new google.maps.Map(document.getElementById('map'),
-        mapOptions);
-    geocoder = new google.maps.Geocoder();
+	var infowindow;
+	var markers = [];
+	var mapOptions = {
+		//center: myLatlng,
+		//zoom: 15,
+		scaleControl: true,
+		mapTypeId: google.maps.MapTypeId.ROADMAP
+	};
+	map = new google.maps.Map(document.getElementById('map'),
+			mapOptions);
+	geocoder = new google.maps.Geocoder();
 
+	// Try HTML5 geolocation
+	if (navigator.geolocation) {
+		//navigator.geolocation.getCurrentPosition(function(position) {
+		watchId = navigator.geolocation.watchPosition(function (position) {
+				var pos = new google.maps.LatLng(position.coords.latitude,
+						position.coords.longitude);
+				geocoder.geocode({
+					'latLng': pos
+				}, function (results, status) {
+					if (status == google.maps.GeocoderStatus.OK) {
+						if (results[0]) {
+							if (markers[0]) {
+								for (var i = 0; i < markers.length; i++) {
+									markers[i].setMap(null);
+								}
+							}
+							var marker = new google.maps.Marker({
+									position: pos,
+									map: map,
+									title: '您正使用HTML5地理定位語法! (您位於方圓 ' + position.coords.accuracy + ' 公尺內)'
+								});
+							markers.push(marker);
 
-    // Try HTML5 geolocation
-    if (navigator.geolocation) {
-        //navigator.geolocation.getCurrentPosition(function(position) {
-        watchId = navigator.geolocation.watchPosition(function(position) {
-            var pos = new google.maps.LatLng(position.coords.latitude,
-                position.coords.longitude);
-            geocoder.geocode({
-                'latLng': pos
-            }, function(results, status) {
-                if (status == google.maps.GeocoderStatus.OK) {
-                    if (results[0]) {
-                        if (markers[0]) {
-                            for (var i = 0; i < markers.length; i++) {
-                                markers[i].setMap(null);
-                            }
-                        }
-                        var marker = new google.maps.Marker({
-                            position: pos,
-                            map: map,
-                            title: '您正使用HTML5地理定位語法! (您位於方圓 ' + position.coords.accuracy + ' 公尺內)'
-                        });
-                        markers.push(marker);
+							google.maps.event.addListener(marker, 'click', function () {
+								if (infowindow) {
+									infowindow.close();
+								}
+								infowindow = new google.maps.InfoWindow(); //初始一個物件
+								infowindow.setContent('<div style="width:275px; height:100px;" class="info-window">您的地理位置使用HTML5語法找到了.<br>您位於' + results[0].formatted_address + '(經緯度:' + position.coords.latitude + ',' + position.coords.longitude + ')方圓 ' + position.coords.accuracy + ' 公尺內</div>'); //InfoWindow的內容，可用Html語法
+								infowindow.setPosition(pos); //座標
+								infowindow.open(map, marker);
+							});
 
-                        google.maps.event.addListener(marker, 'click', function() {
-                            if (infowindow) {
-                                infowindow.close();
-                            }
-                            infowindow = new google.maps.InfoWindow(); //初始一個物件
-                            infowindow.setContent('<div style="width:275px; height:100px;" class="info-window">您的地理位置使用HTML5語法找到了.<br>您位於' + results[0].formatted_address + '(經緯度:' + position.coords.latitude + ',' + position.coords.longitude + ')方圓 ' + position.coords.accuracy + ' 公尺內</div>'); //InfoWindow的內容，可用Html語法
-                            infowindow.setPosition(pos); //座標	
-                            infowindow.open(map, marker);
-                        });
+							if (infowindow) {
+								infowindow.close();
+							}
+							infowindow = new google.maps.InfoWindow(); //初始一個物件
+							infowindow.setContent('<div style="width:275px; height:100px;" class="info-window">您的地理位置使用HTML5語法找到了.<br>您位於' + results[0].formatted_address + '(經緯度:' + position.coords.latitude + ',' + position.coords.longitude + ')方圓 ' + position.coords.accuracy + ' 公尺內</div>'); //InfoWindow的內容，可用Html語法
+							infowindow.setPosition(pos); //座標
+							infowindow.open(map, marker);
+							map.setCenter(pos);
 
-                        if (infowindow) {
-                            infowindow.close();
-                        }
-                        infowindow = new google.maps.InfoWindow(); //初始一個物件
-                        infowindow.setContent('<div style="width:275px; height:100px;" class="info-window">您的地理位置使用HTML5語法找到了.<br>您位於' + results[0].formatted_address + '(經緯度:' + position.coords.latitude + ',' + position.coords.longitude + ')方圓 ' + position.coords.accuracy + ' 公尺內</div>'); //InfoWindow的內容，可用Html語法
-                        infowindow.setPosition(pos); //座標
-                        infowindow.open(map, marker);
-                        map.setCenter(pos);
+						} else {
+							alert('Geocoder failed due to: ' + status);
+						}
+					}
+				});
 
-                    } else {
-                        alert('Geocoder failed due to: ' + status);
-                    }
-                }
-            });
-
-
-        }, function(error) {
-            handleNoGeolocation(error);
-        }, {
-            enableHighAccuracy: true,
-            timeout: 15 * 1000, // 15 seconds
-            maximumAge: 36 * 1000 // 36 seconds
-        });
-    } else {
-        // 瀏覽器不支援HTML5地理定位
-        handleNoGeolocation(false);
-    }
+			}, function (error) {
+				handleNoGeolocation(error);
+			}, {
+				enableHighAccuracy: true,
+				timeout: 15 * 1000, // 15 seconds
+				maximumAge: 36 * 1000 // 36 seconds
+			});
+	} else {
+		// 瀏覽器不支援HTML5地理定位
+		handleNoGeolocation(false);
+	}
 
 }
-
 
 function handleNoGeolocation(errorFlag) {
-    if (errorFlag) {
-        switch (errorFlag.code) {
-            case errorFlag.TIMEOUT:
-                alert('連線逾時');
-                break;
+	if (errorFlag) {
+		switch (errorFlag.code) {
+		case errorFlag.TIMEOUT:
+			alert('連線逾時');
+			break;
 
-            case errorFlag.POSITION_UNAVAILABLE:
-                alert('無法取得定位');
-                break;
+		case errorFlag.POSITION_UNAVAILABLE:
+			alert('無法取得定位');
+			break;
 
-            case errorFlag.PERMISSION_DENIED: //拒絕
-                alert('未允許定位功能');
-                break;
+		case errorFlag.PERMISSION_DENIED: //拒絕
+			alert('未允許定位功能');
+			break;
 
-            case errorFlag.UNKNOWN_ERROR:
-                alert('不明的錯誤，請稍候再試');
-                break;
-        }
-        var content = 'Error: 地理定位失敗.';
-    } else {
-        var content = 'Error: 您的瀏覽器不支援HTML5地理定位.';
-    }
+		case errorFlag.UNKNOWN_ERROR:
+			alert('不明的錯誤，請稍候再試');
+			break;
+		}
+		var content = 'Error: 地理定位失敗.';
+	} else {
+		var content = 'Error: 您的瀏覽器不支援HTML5地理定位.';
+	}
 
-    var options = {
-        map: map,
-        position: new google.maps.LatLng(0, 0),
-        content: content
-    };
+	var options = {
+		map: map,
+		position: new google.maps.LatLng(0, 0),
+		content: content
+	};
 
-    var infowindow = new google.maps.InfoWindow(options);
-    map.setCenter(options.position);
+	var infowindow = new google.maps.InfoWindow(options);
+	map.setCenter(options.position);
 
 }
+
 </script>
 <script type="text/javascript">
-//<![CDATA[   	    
-function init(){
-//$(document).ready(function() {
-		$(".place").geocomplete({
-          //map: ".map_canvas",
-          details: "form",
-          types: ["geocode", "establishment"],
-        });
-        
-    $("#send").on('click', function() {
-				$("#send").hide();
-				$("#refresh").show();
-        var i = 1;
-        for (i; i < 300; i++) {
-            (function(num) {
-                setTimeout(function() {
-                    $('.past').text(num + '秒');
-                }, num * 1000);
-            })(i);
-        }
-        setTimeout('funA()', 1000 * 60 * 5); //Demo 5分鐘
+  	    
+function init() {
 
-        var items = $(".place").map(function() {
-            var arr = [];
-            arr.push($(this).val());
-            return arr;
-        }).get();
-        initialize(items);
-        $(".place").attr('disabled', 'disabled');
-    });
-//});
+	$(".place").geocomplete({
+		//map: ".map_canvas",
+		details: "form",
+		types: ["geocode", "establishment"],
+	});
+
+	var infowindow;
+	var markers = [];
+	var mapOptions = {
+		//center: myLatlng,
+		zoom: 15,
+		scaleControl: true,
+		mapTypeId: google.maps.MapTypeId.ROADMAP
+	};
+	map = new google.maps.Map(document.getElementById('map'),
+			mapOptions);
+	geocoder = new google.maps.Geocoder();
+
+	// Try HTML5 geolocation
+	if (navigator.geolocation) {
+		//navigator.geolocation.getCurrentPosition(function(position) {
+		watchId = navigator.geolocation.watchPosition(function (position) {
+				var pos = new google.maps.LatLng(position.coords.latitude,
+						position.coords.longitude);
+				geocoder.geocode({
+					'latLng': pos
+				}, function (results, status) {
+					if (status == google.maps.GeocoderStatus.OK) {
+						if (results[0]) {
+							$("#placeo").val(results[0].formatted_address);
+							if (markers[0]) {
+								for (var i = 0; i < markers.length; i++) {
+									markers[i].setMap(null);
+								}
+							}
+							var marker = new google.maps.Marker({
+									position: pos,
+									map: map,
+									title: '您正使用HTML5地理定位語法! (您位於方圓 ' + position.coords.accuracy + ' 公尺內)'
+								});
+							markers.push(marker);
+
+							google.maps.event.addListener(marker, 'click', function () {
+								if (infowindow) {
+									infowindow.close();
+								}
+								infowindow = new google.maps.InfoWindow(); //初始一個物件
+								infowindow.setContent('<div style="width:275px; height:100px;" class="info-window">您的地理位置使用HTML5語法找到了.<br>您位於' + results[0].formatted_address + '(經緯度:' + position.coords.latitude + ',' + position.coords.longitude + ')方圓 ' + position.coords.accuracy + ' 公尺內</div>'); //InfoWindow的內容，可用Html語法
+								infowindow.setPosition(pos); //座標
+								infowindow.open(map, marker);
+							});
+
+							if (infowindow) {
+								infowindow.close();
+							}
+							infowindow = new google.maps.InfoWindow(); //初始一個物件
+							infowindow.setContent('<div style="width:275px; height:100px;" class="info-window">您的地理位置使用HTML5語法找到了.<br>您位於' + results[0].formatted_address + '(經緯度:' + position.coords.latitude + ',' + position.coords.longitude + ')方圓 ' + position.coords.accuracy + ' 公尺內</div>'); //InfoWindow的內容，可用Html語法
+							infowindow.setPosition(pos); //座標
+							infowindow.open(map, marker);
+							map.setCenter(pos);
+
+						} else {
+							alert('Geocoder failed due to: ' + status);
+						}
+					}
+				});
+
+			}, function (error) {
+				handleNoGeolocation(error);
+			}, {
+				enableHighAccuracy: true,
+				timeout: 15 * 1000, // 15 seconds
+				maximumAge: 36 * 1000 // 36 seconds
+			});
+	} else {
+		// 瀏覽器不支援HTML5地理定位
+		handleNoGeolocation(false);
+	}
+
+	$("#send").on('click', function () {
+		$("#send").hide();
+		$("#refresh").show();
+		if (watchId !== null) {
+			navigator.geolocation.clearWatch(watchId);
+		}
+		var i = 1;
+		for (i; i < 300; i++) {
+			(function (num) {
+				setTimeout(function () {
+					$('.past').text(num + '秒');
+				}, num * 1000);
+			})(i);
+		}
+		setTimeout('funA()', 1000 * 60 * 5); //Demo 5分鐘
+
+		var items = $(".place").map(function () {
+				var arr = [];
+				arr.push($(this).val());
+				return arr;
+			}).get();
+		initialize(items);
+		$(".place").attr('disabled', 'disabled');
+	});
 }
 google.maps.event.addDomListener(window, 'load', init);
-//]]>
+
+
 </script>	
 </html>
